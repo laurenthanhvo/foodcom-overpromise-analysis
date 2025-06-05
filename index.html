@@ -1,1 +1,309 @@
-<title>Recipe Tags & Ratings Analysis</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mismatch Detector: Are Home Cooks Experiencing Recipes as Intended?</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Google Fonts: Roboto and Lora -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container navbar__content">
+      <h1 class="navbar__brand">Mismatch Detector</h1>
+      <nav class="navbar__nav">
+        <a href="#introduction" class="navbar__link">Introduction</a>
+        <a href="#eda" class="navbar__link">EDA</a>
+        <a href="#missingness" class="navbar__link">Missingness</a>
+        <a href="#hypothesis" class="navbar__link">Hypothesis</a>
+        <a href="#prediction" class="navbar__link">Prediction</a>
+        <a href="#baseline" class="navbar__link">Baseline</a>
+        <a href="#final" class="navbar__link">Final Model</a>
+        <a href="#fairness" class="navbar__link">Fairness</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Introduction -->
+    <section id="introduction" class="section">
+      <h2 class="section__title">Introduction</h2>
+      <p class="section__text">
+        Recipes often promise “delicious” meals, but some home‐cooked versions fall short. Our project,
+        <strong>“Mismatch Detector: Are Home Cooks Experiencing Recipes as Intended?”</strong>, builds a
+        statistical model to automatically flag recipes whose marketing language (“delicious” in the
+        description) fails to match actual cook ratings (<code>avg_rating &lt; 4.0</code>). We leverage
+        recipe metadata, nutritional features, and user interactions to predict which recipes will
+        disappoint—so that home cooks won’t have to guess.
+      </p>
+    </section>
+
+    <!-- Exploratory Data Analysis -->
+    <section id="eda" class="section">
+      <h2 class="section__title">Data Cleaning & Exploratory Data Analysis</h2>
+      <p class="section__text">
+        We merged the <code>recipes</code> and <code>interactions</code> datasets, replaced zero ratings
+        with <code>NaN</code>, and computed the average rating per recipe. Key features extracted include:
+      </p>
+      <ul class="section__list">
+        <li><code>n_ingredients</code> (# of ingredients)</li>
+        <li><code>n_steps</code> (# of steps)</li>
+        <li><code>minutes</code> (cook time)</li>
+        <li><code>calories</code>, <code>protein_g</code>, <code>carbs_g</code></li>
+        <li><code>desc_has_delicious</code> (binary flag if “delicious” appears)</li>
+        <li><code>num_tags</code> (# of recipe tags)</li>
+      </ul>
+      <div class="image-grid">
+        <!-- Replace src with your embedded Plotly/thumbnails -->
+        <figure class="image-grid__item">
+          <img src="assets/eda_calories_distribution.png" alt="Calories Distribution" />
+          <figcaption>Distribution of Calories per Recipe</figcaption>
+        </figure>
+        <figure class="image-grid__item">
+          <img src="assets/eda_num_ingredients.png" alt="Ingredients Distribution" />
+          <figcaption>Distribution of Number of Ingredients</figcaption>
+        </figure>
+        <figure class="image-grid__item">
+          <img src="assets/eda_avg_rating.png" alt="Average Rating Distribution" />
+          <figcaption>Distribution of Average Rating per Recipe</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Missingness Assessment -->
+    <section id="missingness" class="section">
+      <h2 class="section__title">Assessment of Missingness</h2>
+      <p class="section__text">
+        Several columns (e.g., <code>calories</code>, <code>protein_g</code>, <code>carbs_g</code>) had missing
+        values. We reasoned that missingness in nutritional fields is likely
+        <em>Missing At Random</em> (MAR) because it depends on whether the author provided nutrition data.
+        We performed permutation tests comparing recipes with vs. without missing calories:
+      </p>
+      <figure class="image-fullwidth">
+        <img src="assets/missingness_nutrition_permtest.png" alt="Missingness Permutation Test" />
+        <figcaption>Permutation test of calorie‐missing recipes vs. non‐missing recipes (test statistic: difference in mean avg_rating).</figcaption>
+      </figure>
+      <p class="section__text">
+        None of the permutation tests yielded p‐values below 0.05, suggesting that missingness in these
+        nutritional columns did not systematically bias recipe ratings.
+      </p>
+    </section>
+
+    <!-- Hypothesis Testing -->
+    <section id="hypothesis" class="section">
+      <h2 class="section__title">Hypothesis Testing</h2>
+      <p class="section__text">
+        We tested whether “vegetarian” versus “non‐vegetarian” recipes have different average ratings.
+        Specifically:
+      </p>
+      <ul class="section__list">
+        <li><strong>H₀</strong>: Mean(avg_rating | vegetarian) = Mean(avg_rating | non‐vegetarian).</li>
+        <li><strong>H₁</strong>: Mean(avg_rating | vegetarian) ≠ Mean(avg_rating | non‐vegetarian).</li>
+      </ul>
+      <p class="section__text">
+        Using a permutation test on the difference of means (50 000 permutations), we observed a
+        <code>p‐value &gt; 0.05</code>, so we failed to reject H₀. There was no significant rating
+        difference between vegetarian and non‐vegetarian recipes.
+      </p>
+    </section>
+
+    <!-- Framing a Prediction Problem -->
+    <section id="prediction" class="section">
+      <h2 class="section__title">Framing a Prediction Problem</h2>
+      <p class="section__text">
+        We defined a binary “mismatch” target as:
+      </p>
+      <pre class="code-block">
+mismatch = 1 if (desc_has_delicious == 1) AND (avg_rating &lt; 4.0) else 0
+      </pre>
+      <p class="section__text">
+        At publish time, we know these features:
+      </p>
+      <ul class="section__list">
+        <li><code>n_ingredients</code> (quantitative)</li>
+        <li><code>n_steps</code> (quantitative)</li>
+        <li><code>minutes</code> (quantitative)</li>
+        <li><code>desc_has_delicious</code> (binary)</li>
+        <li><code>num_tags</code> (quantitative)</li>
+      </ul>
+      <p class="section__text">
+        Because mismatches are rare (~1 % of recipes), we framed this as a binary classification problem
+        and chose **F₁‐score for class 1** (mismatches) as our evaluation metric.
+      </p>
+    </section>
+
+    <!-- Baseline Model -->
+    <section id="baseline" class="section">
+      <h2 class="section__title">Step 6: Baseline Model</h2>
+      <p class="section__text">
+        We trained a logistic regression pipeline with  
+        <code>StandardScaler()</code> → <code>LogisticRegression()</code>  
+        on five features:  
+      </p>
+      <ul class="section__list">
+        <li><code>n_ingredients</code></li>
+        <li><code>n_steps</code></li>
+        <li><code>minutes</code></li>
+        <li><code>desc_has_delicious</code></li>
+        <li><code>num_tags</code></li>
+      </ul>
+      <p class="section__text">
+        On the held‐out 20 % test set, the baseline achieved:
+      </p>
+      <div class="metrics-grid">
+        <div><strong>Accuracy</strong><br />0.9935</div>
+        <div><strong>Precision (class 1)</strong><br />0.0000</div>
+        <div><strong>Recall (class 1)</strong><br />0.0000</div>
+        <div><strong>F₁ (class 1)</strong><br />0.0000</div>
+      </div>
+      <p class="section__text">
+        The confusion matrix (all 16 235 test recipes predicted as “no mismatch”) shows zero detection of
+        actual mismatches. While accuracy is high, this model fails to catch any underperforming “delicious”
+        recipes.
+      </p>
+      <figure class="image-fullwidth">
+        <img src="assets/baseline_confusion_matrix.png" alt="Baseline Confusion Matrix" />
+        <figcaption>Baseline confusion matrix: the model predicts only the majority class (“no mismatch”).</figcaption>
+      </figure>
+    </section>
+
+    <!-- Final Model -->
+    <section id="final" class="section">
+      <h2 class="section__title">Step 7: Final Model</h2>
+      <h3 class="subsection__title">7.1 Feature Engineering</h3>
+      <ul class="section__list">
+        <li><code>cal_per_ing</code> = <code>calories / (n_ingredients + 1)</code></li>
+        <li><code>time_per_step</code> = <code>minutes / (n_steps + 1)</code></li>
+        <li><code>prot_carb_ratio</code> = <code>protein_g / (carbs_g + 1)</code></li>
+      </ul>
+      <p class="section__text">
+        These ratios capture a recipe’s “ingredient density,” “effort per step,” and “nutritional balance,”
+        respectively.
+      </p>
+
+      <h3 class="subsection__title">7.2 Model & Hyperparameter Tuning</h3>
+      <p class="section__text">
+        We chose a <code>RandomForestClassifier(class_weight="balanced")</code> to handle nonlinearity
+        and class imbalance. Using 5‐fold <code>GridSearchCV</code>, we tuned:
+      </p>
+      <pre class="code-block">
+param_grid = {
+  "clf__n_estimators": [100, 200],
+  "clf__max_depth": [None, 10, 20],
+  "clf__class_weight": ["balanced"]
+}
+      </pre>
+      <p class="section__text">
+        The best hyperparameters (by mean cross‐validated F₁ on training data) were:
+      </p>
+      <div class="metrics-grid">
+        <div><strong>n_estimators</strong><br />200</div>
+        <div><strong>max_depth</strong><br />10</div>
+        <div><strong>class_weight</strong><br />"balanced"</div>
+      </div>
+
+      <h3 class="subsection__title">7.3 Final Model Performance</h3>
+      <p class="section__text">
+        Evaluating the tuned Random Forest on the **same** 20 % test split:
+      </p>
+      <div class="metrics-grid">
+        <div><strong>Accuracy</strong><br />0.9792</div>
+        <div><strong>Precision (class 1)</strong><br />0.4531</div>
+        <div><strong>Recall (class 1)</strong><br />0.3103</div>
+        <div><strong>F₁ (class 1)</strong><br />0.3699</div>
+      </div>
+      <figure class="image-fullwidth">
+        <img src="assets/final_confusion_matrix.png" alt="Final Model Confusion Matrix" />
+        <figcaption>
+          Final Model confusion matrix (test):  
+          <br />• True Negatives: 8145  
+          <br />• False Positives: 150  
+          <br />• False Negatives: 67  
+          <br />• True Positives: 30  
+        </figcaption>
+      </figure>
+
+      <h3 class="subsection__title">7.4 Feature Importances</h3>
+      <p class="section__text">
+        The relative importances of the eight features in the final Random Forest:
+      </p>
+      <figure class="image-fullwidth">
+        <img src="assets/final_feature_importances.png" alt="Feature Importances" />
+        <figcaption>
+          <ol>
+            <li><code>desc_has_delicious</code> (0.3125)</li>
+            <li><code>prot_carb_ratio</code> (0.1728)</li>
+            <li><code>cal_per_ing</code> (0.1456)</li>
+            <li><code>n_ingredients</code> (0.1032)</li>
+            <li><code>time_per_step</code> (0.0891)</li>
+            <li><code>minutes</code> (0.0754)</li>
+            <li><code>n_steps</code> (0.0478)</li>
+            <li><code>num_tags</code> (0.0536)</li>
+          </ol>
+          “delicious” in the description and nutritional ratios were the strongest predictors of mismatch.
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- Fairness Analysis -->
+    <section id="fairness" class="section">
+      <h2 class="section__title">Step 8: Fairness Analysis</h2>
+      <p class="section__text">
+        We compared the model’s precision for catching mismatches between:
+      </p>
+      <ul class="section__list">
+        <li><strong>Simple recipes:</strong> n_ingredients ≤ 5</li>
+        <li><strong>Complex recipes:</strong> n_ingredients > 5</li>
+      </ul>
+      <h3 class="subsection__title">8.1 Observed Precisions</h3>
+      <div class="metrics-grid">
+        <div><strong>Precision(simple)</strong><br />0.4714</div>
+        <div><strong>Precision(complex)</strong><br />0.4000</div>
+        <div><strong>Δ (simple − complex)</strong><br />0.0714</div>
+      </div>
+
+      <h3 class="subsection__title">8.2 Permutation Test</h3>
+      <p class="section__text">
+        We ran 5 000 permutations of “simple/complex” labels to build a null distribution of Δ, then
+        computed the two‐sided p‐value:
+      </p>
+      <div class="metrics-grid">
+        <div><strong>p‐value</strong><br />0.0428</div>
+      </div>
+      <figure class="image-fullwidth">
+        <img src="assets/fairness_null_distribution.png" alt="Null Distribution of Δ" />
+        <figcaption>
+          Null distribution of Δ = Precision(simple) − Precision(complex).  
+          The red dashed line marks the observed Δ = 0.0714.
+        </figcaption>
+      </figure>
+      <p class="section__text">
+        Since p = 0.0428 &lt; 0.05, we reject the null. The model is significantly better at
+        catching mismatches in simple recipes than in complex recipes. Potential next steps:
+      </p>
+      <ul class="section__list">
+        <li>Engineer additional features tailored to complex recipes (e.g. “tag diversity”).</li>
+        <li>Adjust the classification threshold separately for each group.</li>
+        <li>Train a specialized sub‐model for complex recipes.</li>
+      </ul>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p class="footer__text">
+          &copy; 2025 Your Name • Mismatch Detector: Are Home Cooks Experiencing Recipes as Intended? • DSC 80 Final Project
+        </p>
+      </div>
+    </footer>
+  </main>
+</body>
+</html>
