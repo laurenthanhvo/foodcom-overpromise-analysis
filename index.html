@@ -1,1 +1,39 @@
+<section id="introduction" class="section">
+  <h2 class="section__title">Introduction</h2>
+  <p class="section__text">
+    Recipes often promise “delicious” meals, but sometimes home-cooked versions fall short. Our project,
+    <strong>“Mismatch Detector: Are Home Cooks Experiencing Recipes as Intended?”</strong>, builds a
+    statistical model to automatically flag recipes whose marketing language (“delicious” in the
+    description) fails to match actual cook ratings (average rating &lt; 4.0). By leveraging recipe
+    metadata, nutritional features, and user interactions, we aim to predict which recipes are likely to
+    disappoint—so that home cooks will know ahead of time.
+  </p>
+  <p class="section__text">
+    In modern cooking communities, many recipes are shared online with enthusiastic descriptions.
+    Phrases like “best ever” or “so delicious” set high expectations, but every home cook’s experience can
+    vary. Our core question is:
+  </p>
+  <blockquote class="section__quote">
+    <strong>
+      Can we detect, based solely on the recipe’s publish-time attributes (ingredients, steps, nutrition,
+      and description text), when a recipe’s author overpromises and home cooks end up rating it poorly?
+    </strong>
+  </blockquote>
+  <p class="section__text">
+    To answer this, we:
+  </p>
+  <ol class="section__list">
+    <li>Merge the “recipes” and “interactions” datasets to compute average ratings per recipe.</li>
+    <li>Define a binary “mismatch” target: when a recipe’s description contains “delicious” but its
+      average rating is below 4.0.</li>
+    <li>Engineer features such as number of ingredients/steps, cook time, and nutritional ratios.</li>
+    <li>Train and compare baseline and final classifiers to predict mismatches.</li>
+    <li>Assess statistical fairness to ensure our detector works equally well across recipe types.</li>
+  </ol>
+  <p class="section__text">
+    In the following sections, we walk through each step of the data science lifecycle—exploratory
+    analysis, missingness assessment, hypothesis testing, modeling, and fairness—to build a robust
+    “Mismatch Detector” and demonstrate how it can help home cooks avoid disappointing recipes.
+  </p>
+</section>
 
