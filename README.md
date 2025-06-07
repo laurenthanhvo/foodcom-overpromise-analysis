@@ -290,6 +290,7 @@ All quantitative features were standardized; the single binary feature was used 
 
 ### Confusion Matrix:
 [[14537  1593]
+
  [    0   105]]
 
 - **Accuracy** is high (≈90.2%) because “no-mismatch” is the dominant class.
@@ -378,6 +379,7 @@ param_grid = {
 
 ### Confusion Matrix (Final Model)
 [[15474   656]
+
  [   53    52]]
 
 **Interpretation:** The Random Forest trades off some recall for a substantial precision gain, yielding an overall higher F₁-score. By combining publish-time and engineered features in a flexible tree-based model, we make measurable progress toward flagging mismatches without overwhelming users with false alarms.
