@@ -399,3 +399,47 @@ param_grid = {
  [   53    52]]
 
 **Interpretation:** The Random Forest trades off some recall for a substantial precision gain, yielding an overall higher F₁-score. By combining publish-time and engineered features in a flexible tree-based model, we make measurable progress toward flagging mismatches without overwhelming users with false alarms.
+
+## Fairness Analysis
+
+**Group X:** “simple” recipes (`n_ingredients ≤ 5`)  
+**Group Y:** “complex” recipes (`n_ingredients > 5`)
+
+### Evaluation Metric
+We assess fairness by comparing the **precision** for the positive class (`mismatch = 1`) in each group.
+
+### Null & Alternative Hypotheses
+- **H₀:** precision₁(simple) ≈ precision₁(complex) (any difference is due to chance)  
+- **H₁:** precision₁(simple) ≠ precision₁(complex)
+
+### Test Statistic & Significance Level
+We define our test statistic as  
+> **Δ precision** = precision(simple) − precision(complex)
+
+To estimate its null distribution, we perform a **two-sided permutation test** with **B = 5000** random shuffles of the `mask_simple` indicator. We use a conventional significance level of **α = 0.05**.
+
+---
+
+### Results
+
+- **Observed precision (simple):** 0.0638  
+- **Observed precision (complex):** 0.0741  
+- **Observed Δ precision:** 0.0638 − 0.0741 = **−0.0103**  
+- **Permutation p-value (two-sided):** **0.6826**
+
+Since _p_ > α, we **fail to reject H₀**. There is no statistically significant difference in mismatch detection precision between simple and complex recipes.
+
+---
+
+### Null Distribution of Δ Precision
+
+<iframe
+  src="assets/permtest_4.html"
+  width="800" height="450"
+  frameborder="0">
+</iframe>
+
+<em>
+The histogram shows the permutation-test null distribution of Δ precision under random group assignments, and the vertical red dashed line marks our observed Δ = −0.0103. With p = 0.6826, the observed gap is consistent with chance.
+</em>
+
