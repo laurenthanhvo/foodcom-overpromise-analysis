@@ -10,7 +10,7 @@ Understanding this “mismatch” between marketing language and actual user sat
 
 ---
 
-## Dataset Overview
+## Introduction
 
 Our merged dataset contains **83,782** rows. For this prediction problem, we focus on the following columns:
 
