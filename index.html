@@ -3,42 +3,79 @@ title: "Evaluating Consistency Between Recipe Descriptions and Home Cook Ratings
 layout: default
 ---
 
-<section id="introduction" class="section">
-  <h2 class="section__title">Introduction</h2>
-  <p class="section__text">
-    Recipes often promise “delicious” meals, but sometimes home-cooked versions fall short. Our project,
-    <strong>“Mismatch Detector: Are Home Cooks Experiencing Recipes as Intended?”</strong>, builds a
-    statistical model to automatically flag recipes whose marketing language (“delicious” in the
-    description) fails to match actual cook ratings (average rating &lt; 4.0). By leveraging recipe
-    metadata, nutritional features, and user interactions, we aim to predict which recipes are likely to
-    disappoint—so that home cooks will know ahead of time.
+<section id="introduction" class="prose lg:prose-xl mx-auto my-12">
+  <h2>Introduction</h2>
+  <p>
+    In today’s world of food blogging and recipe sharing, authors often use enthusiastic marketing-style language—words like “delicious,” “amazing,” and “you will LOVE this”—to entice home cooks to try their creations.  However, some recipes hyped in their descriptions fail to live up to expectations, receiving low ratings despite the promise of “deliciousness.”
   </p>
-  <p class="section__text">
-    In modern cooking communities, many recipes are shared online with enthusiastic descriptions.
-    Phrases like “best ever” or “so delicious” set high expectations, but every home cook’s experience can
-    vary. Our core question is:
+  <p>
+    In this project, we analyze a dataset of <strong>83,782</strong> recipes scraped from Food.com to answer the question:
   </p>
-  <blockquote class="section__quote">
-    <strong>
-      Can we detect, based solely on the recipe’s publish-time attributes (ingredients, steps, nutrition,
-      and description text), when a recipe’s author overpromises and home cooks end up rating it poorly?
-    </strong>
+  <blockquote>
+    <strong>Can we detect, based solely on a recipe’s publish-time attributes (ingredients, steps, nutrition, and description text), when a recipe author has overpromised and home cooks end up rating it poorly?</strong>
   </blockquote>
-  <p class="section__text">
-    To answer this, we:
+  <p>
+    Understanding this “mismatch” between marketing language and actual user satisfaction can help recipe platforms flag recipes likely to disappoint, improve recommendation engines, and guide authors toward more honest, data-driven descriptions.
   </p>
-  <ol class="section__list">
-    <li>Merge the “recipes” and “interactions” datasets to compute average ratings per recipe.</li>
-    <li>Define a binary “mismatch” target: when a recipe’s description contains “delicious” but its
-      average rating is below 4.0.</li>
-    <li>Engineer features such as number of ingredients/steps, cook time, and nutritional ratios.</li>
-    <li>Train and compare baseline and final classifiers to predict mismatches.</li>
-    <li>Assess statistical fairness to ensure our detector works equally well across recipe types.</li>
-  </ol>
-  <p class="section__text">
-    In the following sections, we walk through each step of the data science lifecycle—exploratory
-    analysis, missingness assessment, hypothesis testing, modeling, and fairness—to build a robust
-    “Mismatch Detector” and demonstrate how it can help home cooks avoid disappointing recipes.
+
+  <h3>Dataset Overview</h3>
+  <p>
+    Our merged dataset contains <strong>83,782</strong> rows.  For this prediction problem, we focus on the following columns:
   </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>description</code></td>
+        <td>Original text description written by the recipe author.</td>
+      </tr>
+      <tr>
+        <td><code>avg_rating</code></td>
+        <td>Average user rating (1–5 stars); recipes without ratings are marked missing.</td>
+      </tr>
+      <tr>
+        <td><code>n_ingredients</code></td>
+        <td>Number of ingredients listed in the recipe.</td>
+      </tr>
+      <tr>
+        <td><code>n_steps</code></td>
+        <td>Number of preparation steps.</td>
+      </tr>
+      <tr>
+        <td><code>minutes</code></td>
+        <td>Estimated total cook + prep time in minutes.</td>
+      </tr>
+      <tr>
+        <td><code>calories</code></td>
+        <td>Total calories per serving.</td>
+      </tr>
+      <tr>
+        <td><code>protein_g</code></td>
+        <td>Grams of protein per serving.</td>
+      </tr>
+      <tr>
+        <td><code>carbs_g</code></td>
+        <td>Grams of carbohydrates per serving.</td>
+      </tr>
+      <tr>
+        <td><code>tag_list</code></td>
+        <td>List of categorical tags (e.g., “vegetarian”, “dessert”).</td>
+      </tr>
+      <tr>
+        <td><code>desc_has_delicious</code></td>
+        <td>Boolean flag: whether the description contains the word “delicious.”</td>
+      </tr>
+      <tr>
+        <td><code>mismatch</code></td>
+        <td>Target label: 1 if <code>desc_has_delicious</code> is true but <code>avg_rating</code> &lt; 4; otherwise 0.</td>
+      </tr>
+    </tbody>
+  </table>
 </section>
+
 
