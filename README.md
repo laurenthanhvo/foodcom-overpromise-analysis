@@ -1,4 +1,4 @@
-# Evaluating Consistency Between Recipe Descriptions and Home Cook Ratings
+# Recipe Overpromise Analytics: A Predictive Study of Online Recipes
 
 In today’s world of food blogging and recipe sharing, authors often use enthusiastic marketing-style language—words like “delicious,” “amazing,” and “you will **LOVE** this”—to entice home cooks to try their creations. However, some recipes hyped in their descriptions fail to live up to expectations, receiving low ratings despite the promise of “deliciousness.”
 
