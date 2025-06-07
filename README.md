@@ -60,7 +60,6 @@ After merging the recipe metadata, nutrition facts, and ratings, I discovered:
 | 286009 | millionaire pound cake                  | 2008-02-11  | 7             | 5.0        | 878.3    | 0                  | 0        |
 | 475785 | 2000 meatloaf                           | 2012-03-29  | 13            | 5.0        | 267.0    | 0                  | 0        |
 
----
 
 ### 2. Distribution of Number of Ingredients
 
