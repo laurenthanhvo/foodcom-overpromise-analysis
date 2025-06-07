@@ -139,22 +139,12 @@ layout: default
 
   <!-- 2. Univariate Plot -->
   <h3>2. Distribution of Number of Ingredients</h3>
-  <!-- Plotly.js -->
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <div id="hist-ingredients" style="width:100%;max-width:700px;height:450px;"></div>
-  <script>
-    // paste the JSON you get from fig_hist.to_json() here:
-    const histJSON = /* {
-      "data": [ /* … your data array … */ ],
-      "layout": {
-        "title": "Distribution of Number of Ingredients per Recipe",
-        "xaxis": {"title":"Number of Ingredients"},
-        "yaxis": {"title":"Count"},
-        "margin": {"t":50,"l":50,"r":20,"b":50}
-      }
-    } */;
-    Plotly.react('hist-ingredients', histJSON.data, histJSON.layout);
-  </script>
+    <iframe
+    src="/assets/n_ingredients_dist.html"
+    width="700"
+    height="450"
+    frameborder="0"
+  ></iframe>
   <p>
     <em>Nearly three‐quarters of recipes use between 5 and 15 ingredients (the box shows the 25th–75th percentile), 
     but there’s a long tail of complex recipes up to 30+ ingredients.</em>
@@ -162,20 +152,12 @@ layout: default
 
   <!-- 3. Bivariate Plot -->
   <h3>3. Average Rating vs. Number of Ingredients</h3>
-  <div id="scatter-rating-ingredients" style="width:100%;max-width:700px;height:450px;"></div>
-  <script>
-    // paste the JSON you get from fig_scatter.to_json() here:
-    const scatterJSON = /* {
-      "data": [ /* … your data array … */ ],
-      "layout": {
-        "title": "Average Rating vs. Number of Ingredients",
-        "xaxis": {"title":"# Ingredients"},
-        "yaxis": {"title":"Average Rating"},
-        "margin": {"t":50,"l":50,"r":20,"b":50}
-      }
-    } */;
-    Plotly.react('scatter-rating-ingredients', scatterJSON.data, scatterJSON.layout);
-  </script>
+  <iframe
+    src="/assets/avg_rating_vs_ingredients.html"
+    width="700"
+    height="450"
+    frameborder="0"
+  ></iframe>
   <p>
     <em>The fitted trendline is essentially flat, indicating that recipe length (ingredient count) 
     by itself does not strongly predict whether home cooks rate the recipe higher or lower.</em>
