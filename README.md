@@ -162,49 +162,107 @@ We then compared the observed Δ to its null distribution under random label‐p
 - Missingness in `avg_rating` can be explained by recipe **popularity** (an observable factor), so it is MAR.  
 - Because the only non‐zero—but tiny—difference was in `n_ingredients`, we feel comfortable dropping unrated recipes without introducing substantive bias in our “mismatch” labels.
 
-<section id="hypothesis-testing" class="prose lg:prose-xl mx-auto my-12">
-  <h2>Step 4: Hypothesis Testing</h2>
+---
 
-  <h3>Null &amp; Alternative Hypotheses</h3>
-  <p><strong>Null hypothesis (H<sub>0</sub>):</strong>  
-     The mean average rating for recipes whose descriptions <em>contain</em> “delicious” is the same as for recipes whose descriptions <em>do not</em> contain “delicious.”</p>
-  <p><strong>Alternative hypothesis (H<sub>1</sub>):</strong>  
-     Recipes whose descriptions contain “delicious” have a <em>different</em> mean average rating than those that do not.</p>
+## Hypothesis Testing
 
-  <h3>Test Statistic &amp; Significance Level</h3>
-  <p>We use the difference in group means as our test statistic:</p>
-  <blockquote>
-    T = mean(avg_rating | desc_has_delicious = 1) – mean(avg_rating | desc_has_delicious = 0)
-  </blockquote>
-  <p>
-    Because we make no strong parametric assumptions about the rating distributions, we estimate the null distribution via a two-sided permutation test (B = 5 000 shuffles of the <code>desc_has_delicious</code> labels).  
-    We choose a conventional significance level of <var>α</var> = 0.05.
-  </p>
+### Null & Alternative Hypotheses
 
-  <h3>Results</h3>
-  <ul>
-    <li><strong>Observed test statistic:</strong>  
-        T<sub>obs</sub> = mean(ratings | “delicious”) – mean(ratings | not “delicious”) = 0.023</li>
-    <li><strong>Permutation p-value (two-sided):</strong>  
-        p = 0.0028</li>
-  </ul>
-  <p>
-    Since p &lt; α, we reject H<sub>0</sub> and conclude there is a statistically significant difference in mean ratings between the two groups.  
-    However, the effect size is very small (~0.02 stars), so while “delicious” in the description correlates with a slightly higher rating, it is not by itself a practically strong over-promise signal.
-  </p>
+**Null hypothesis (H₀):**  
+The mean average rating for recipes whose descriptions _contain_ “delicious” is the same as for recipes whose descriptions _do not_ contain “delicious.”
 
-  <h3>Null Distribution of Δ mean(avg_rating)</h3>
-  <iframe
-    src="assets/permtest_3.html"
-    width="800"
-    height="450"
-    frameborder="0"
-  ></iframe>
-  <p>
-    <em>
-      The gray bars show the permutation-test null distribution of Δ mean(avg_rating), and the vertical red dashed line marks our observed Δ = 0.023.  
-      Only ~0.28% of shuffled labelings produced a difference as extreme or more extreme, yielding p = 0.0028.
-    </em>
-  </p>
-</section>
+**Alternative hypothesis (H₁):**  
+Recipes whose descriptions contain “delicious” have a _different_ mean average rating than those that do not.
 
+---
+
+### Test Statistic & Significance Level
+
+We use the difference in group means as our test statistic:
+
+> **T** = mean( avg_rating | desc_has_delicious = 1 )  
+> &nbsp;&nbsp;– mean( avg_rating | desc_has_delicious = 0 )
+
+Because we make no strong parametric assumptions about the rating distributions, we estimate the null distribution via a two-sided permutation test (**B = 5000** shuffles of the `desc_has_delicious` labels). We choose a conventional significance level of **α = 0.05**.
+
+---
+
+### Results
+
+- **Observed test statistic** (Tₒbₛ):  
+  mean(ratings | “delicious”) – mean(ratings | not “delicious”) = **0.023**
+- **Permutation p-value (two-sided):**  
+  **p = 0.0028**
+
+Since _p_ < α, we reject H₀ and conclude there is a statistically significant difference in mean ratings between the two groups. However, the effect size is very small (~0.02 stars), so while “delicious” in the description correlates with a slightly higher rating, it is not by itself a practically strong over-promise signal.
+
+---
+
+### Null Distribution of Δ mean(avg_rating)
+
+<iframe
+  src="assets/permtest_3.html"
+  width="800" height="450"
+  frameborder="0">
+</iframe>
+
+<em>
+The gray bars show the permutation-test null distribution of Δ mean(avg_rating), and the vertical red dashed line marks our observed Δ = 0.023. Only ~0.28% of shuffled labelings produced a difference as extreme or more extreme, yielding p = 0.0028.
+</em>
+
+---
+
+## Framing a Prediction Problem
+
+### Prediction Type  
+This is a **binary classification** problem: given only information known at publication, we predict whether a recipe “over-promises” in its description and then “under-delivers” on user ratings.
+
+---
+
+### Response Variable (_y_)  
+We define: mismatch = 1 if desc_has_delicious == 1 AND avg_rating < 4.0, mismatch = 0 otherwise
+
+We chose this target because our central question is  
+> “Can we detect, at publish-time, which recipes hyped as ‘delicious’ home cooks end up rating poorly?”
+
+---
+
+### Features (_X_)  
+We only use fields available the moment the recipe goes live:
+
+- **Quantitative**:  
+  `n_ingredients`, `n_steps`, `minutes`,  
+  `calories`, `protein_g`, `carbs_g`, `num_tags`
+- **Binary**:  
+  `desc_has_delicious`
+
+Any rows missing these features are dropped so the model never “peeks” at post-publication data (e.g. actual user reviews).
+
+---
+
+### Why Binary Classification?  
+There are exactly two outcomes—“mismatch” versus “not mismatch”—so binary classification is the natural choice.
+
+---
+
+### Evaluation Metric  
+We use the **F₁-score** rather than plain accuracy because the positive class  
+(`mismatch = 1`) is very rare (~0.65% of all recipes).  
+F₁ balances precision (avoiding false alarms) and recall (catching true mismatches).
+
+---
+
+### Time-of-Prediction Justification  
+All features (`n_ingredients`, `minutes`, etc.) are known immediately upon publication.  
+We deliberately exclude any later data—no post-publication edits, user comments, or subsequent ratings—so our model truly simulates “real-time” predictions.
+
+---
+
+### Train/Test Split & Class Balance
+
+| Dataset   | # Records | Mismatch = 1 (%) |
+|-----------|-----------|------------------|
+| Training  | 64,938    | 0.65%            |
+| Test      | 16,235    | 0.65%            |
+
+We performed a stratified 80/20 split to preserve the roughly 1-in-150 rate of mismatches in both sets.
