@@ -331,3 +331,65 @@ Although this baseline almost never misses a true mismatch (recall = 100%), it g
 | **calories**            |      −0.2702 |
 
 The large positive weight on `desc_has_delicious` confirms it is the strongest single predictor, but the overall poor precision shows we need richer features or a more flexible model to reliably detect mismatches.
+
+---
+
+## Final Model
+
+### New Feature Engineering
+
+* **`cal_per_ing`** = calories / (n_ingredients + 1)  
+  *Captures average caloric density per ingredient; very rich recipes may disappoint if over-hyped.*
+
+* **`time_per_step`** = minutes / (n_steps + 1)  
+  *Measures average time per instruction step; extreme pacing can affect user satisfaction.*
+
+* **`prot_carb_ratio`** = protein_g / (carbs_g + 1)  
+  *Encodes macronutrient balance; unbalanced recipes (too low protein or too high carbs) may under-deliver.*
+
+By grounding each feature in the data‐generating process (ingredient complexity, effort distribution, and nutritional profile), we hypothesize these proxies help the model detect when a “delicious” description overpromises.
+
+---
+
+### Modeling Algorithm & Hyperparameter Tuning
+
+We switched from a linear model to a **Random Forest Classifier** to capture nonlinear interactions among both raw and derived features.
+
+**Pipeline**  
+```python
+from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+
+pipeline = Pipeline([
+  ("clf", RandomForestClassifier(random_state=42))
+])
+
+**Hyperparameter grid** (GridSearchCV, 5-fold CV, scoring="f1"):
+param_grid = {
+  "clf__n_estimators": [100, 200],
+  "clf__max_depth":    [None, 10, 20],
+  "clf__class_weight": ["balanced"]
+}
+
+**Best parameters** found via cross‐validation:
+{'clf__class_weight': 'balanced',
+ 'clf__max_depth': 20,
+ 'clf__n_estimators': 100}
+
+### Final Model vs. Baseline
+| Model                      | Precision | Recall | F₁-score |
+| -------------------------- | --------: | -----: | -------: |
+| Logistic Regression (base) |    0.0618 |  1.000 |   0.1165 |
+| Random Forest (final)      |    0.0734 |  0.495 |   0.1279 |
+
+- **Precision ↑** from 0.0618 → 0.0734 (fewer false positives)
+
+- **Recall ↓** from 1.000 → 0.495 (trade‐off accepted to reduce alarms)
+
+- **F₁-score ↑** from 0.1165 → 0.1279
+
+### Confusion Matrix (Final Model)
+[[15474   656]
+ [   53    52]]
+
+**Interpretation:** The Random Forest trades off some recall for a substantial precision gain, yielding an overall higher F₁-score. By combining publish-time and engineered features in a flexible tree-based model, we make measurable progress toward flagging mismatches without overwhelming users with false alarms.
