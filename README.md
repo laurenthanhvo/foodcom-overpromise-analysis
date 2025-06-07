@@ -338,16 +338,16 @@ The large positive weight on `desc_has_delicious` confirms it is the strongest s
 
 ### New Feature Engineering
 
-* **`cal_per_ing`** = calories / (n_ingredients + 1)  
-  *Captures average caloric density per ingredient; very rich recipes may disappoint if over-hyped.*
+- **`cal_per_ing`** = `calories` / (`n_ingredients` + 1)  
+  _Captures average caloric density per ingredient; very rich recipes may disappoint if over-hyped._
 
-* **`time_per_step`** = minutes / (n_steps + 1)  
-  *Measures average time per instruction step; extreme pacing can affect user satisfaction.*
+- **`time_per_step`** = `minutes` / (`n_steps` + 1)  
+  _Measures average time per instruction step; extreme pacing can affect user satisfaction._
 
-* **`prot_carb_ratio`** = protein_g / (carbs_g + 1)  
-  *Encodes macronutrient balance; unbalanced recipes (too low protein or too high carbs) may under-deliver.*
+- **`prot_carb_ratio`** = `protein_g` / (`carbs_g` + 1)  
+  _Encodes macronutrient balance; unbalanced recipes (too low protein or too high carbs) may under-deliver._
 
-By grounding each feature in the data‐generating process (ingredient complexity, effort distribution, and nutritional profile), we hypothesize these proxies help the model detect when a “delicious” description overpromises.
+By grounding each feature in the data-generating process (ingredient complexity, effort distribution, and nutritional profile), we hypothesize these proxies help the model detect when a “delicious” description overpromises.
 
 ---
 
@@ -365,6 +365,7 @@ pipeline = Pipeline([
 ])
 
 **Hyperparameter grid** (GridSearchCV, 5-fold CV, scoring="f1"):
+```python
 param_grid = {
   "clf__n_estimators": [100, 200],
   "clf__max_depth":    [None, 10, 20],
@@ -372,9 +373,12 @@ param_grid = {
 }
 
 **Best parameters** found via cross‐validation:
+```python
 {'clf__class_weight': 'balanced',
  'clf__max_depth': 20,
  'clf__n_estimators': 100}
+
+---
 
 ### Final Model vs. Baseline
 | Model                      | Precision | Recall | F₁-score |
@@ -387,6 +391,8 @@ param_grid = {
 - **Recall ↓** from 1.000 → 0.495 (trade‐off accepted to reduce alarms)
 
 - **F₁-score ↑** from 0.1165 → 0.1279
+
+---
 
 ### Confusion Matrix (Final Model)
 [[15474   656]
