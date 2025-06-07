@@ -403,8 +403,7 @@ I assessed fairness by comparing the **precision** for the positive class (`mism
 - **H₁:** precision₁(simple) ≠ precision₁(complex)
 
 ### Test Statistic & Significance Level
-I defined the test statistic as  
-> **Δ precision** = precision(simple) − precision(complex)
+I defined the test statistic as **Δ precision** = precision(simple) − precision(complex)
 
 To estimate its null distribution, I performed a **two-sided permutation test** with 5000 random shuffles of the `mask_simple` indicator. I used a significance level of **α = 0.05**.
 
