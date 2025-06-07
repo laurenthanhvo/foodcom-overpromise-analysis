@@ -321,13 +321,13 @@ Although this baseline almost never misses a true mismatch (recall = 100%), it g
 
 | Feature                   | Coefficient |
 |---------------------------|------------:|
-| **`desc_has_delicious`**  |       4.9430 |
-| **`carbs_g`**             |       0.2487 |
-| **`protein_g`**           |       0.1002 |
-| **`minutes`**             |       0.0523 |
-| **`n_steps`**             |       0.0038 |
-| **`n_ingredients`**       |       0.0004 |
-| **`num_tags`**            |      −0.0317 |
-| **`calories`**            |      −0.2702 |
+| **desc_has_delicious**  |       4.9430 |
+| **carbs_g**             |       0.2487 |
+| **protein_g**           |       0.1002 |
+| **minutes**             |       0.0523 |
+| **n_steps**             |       0.0038 |
+| **n_ingredients**       |       0.0004 |
+| **num_tags**            |      −0.0317 |
+| **calories**            |      −0.2702 |
 
 The large positive weight on `desc_has_delicious` confirms it is the strongest single predictor, but the overall poor precision shows we need richer features or a more flexible model to reliably detect mismatches.
