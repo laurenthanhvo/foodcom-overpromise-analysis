@@ -162,3 +162,49 @@ We then compared the observed Δ to its null distribution under random label‐p
 - Missingness in `avg_rating` can be explained by recipe **popularity** (an observable factor), so it is MAR.  
 - Because the only non‐zero—but tiny—difference was in `n_ingredients`, we feel comfortable dropping unrated recipes without introducing substantive bias in our “mismatch” labels.
 
+<section id="hypothesis-testing" class="prose lg:prose-xl mx-auto my-12">
+  <h2>Step 4: Hypothesis Testing</h2>
+
+  <h3>Null &amp; Alternative Hypotheses</h3>
+  <p><strong>Null hypothesis (H<sub>0</sub>):</strong>  
+     The mean average rating for recipes whose descriptions <em>contain</em> “delicious” is the same as for recipes whose descriptions <em>do not</em> contain “delicious.”</p>
+  <p><strong>Alternative hypothesis (H<sub>1</sub>):</strong>  
+     Recipes whose descriptions contain “delicious” have a <em>different</em> mean average rating than those that do not.</p>
+
+  <h3>Test Statistic &amp; Significance Level</h3>
+  <p>We use the difference in group means as our test statistic:</p>
+  <blockquote>
+    T = mean(avg_rating | desc_has_delicious = 1) – mean(avg_rating | desc_has_delicious = 0)
+  </blockquote>
+  <p>
+    Because we make no strong parametric assumptions about the rating distributions, we estimate the null distribution via a two-sided permutation test (B = 5 000 shuffles of the <code>desc_has_delicious</code> labels).  
+    We choose a conventional significance level of <var>α</var> = 0.05.
+  </p>
+
+  <h3>Results</h3>
+  <ul>
+    <li><strong>Observed test statistic:</strong>  
+        T<sub>obs</sub> = mean(ratings | “delicious”) – mean(ratings | not “delicious”) = 0.023</li>
+    <li><strong>Permutation p-value (two-sided):</strong>  
+        p = 0.0028</li>
+  </ul>
+  <p>
+    Since p &lt; α, we reject H<sub>0</sub> and conclude there is a statistically significant difference in mean ratings between the two groups.  
+    However, the effect size is very small (~0.02 stars), so while “delicious” in the description correlates with a slightly higher rating, it is not by itself a practically strong over-promise signal.
+  </p>
+
+  <h3>Null Distribution of Δ mean(avg_rating)</h3>
+  <iframe
+    src="assets/permtest_3.html"
+    width="800"
+    height="450"
+    frameborder="0"
+  ></iframe>
+  <p>
+    <em>
+      The gray bars show the permutation-test null distribution of Δ mean(avg_rating), and the vertical red dashed line marks our observed Δ = 0.023.  
+      Only ~0.28% of shuffled labelings produced a difference as extreme or more extreme, yielding p = 0.0028.
+    </em>
+  </p>
+</section>
+
