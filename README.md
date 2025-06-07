@@ -213,7 +213,7 @@ This is a **binary classification** problem: given only information known at pub
 I defined: mismatch = 1 if desc_has_delicious == 1 AND avg_rating < 4.0, mismatch = 0 otherwise
 
 I chose this target because the central question is  
-> “Can we detect, at publish-time, which recipes hyped as ‘delicious’ home cooks end up rating poorly?”
+> Can we detect, based solely on a recipe’s publish-time attributes (ingredients, steps, nutrition, and description text), when a recipe author has overpromised and home cooks end up rating it poorly?
 
 
 ### Features (_X_)  
@@ -298,7 +298,7 @@ All quantitative features were standardized; the single binary feature was used 
 
 - **Positive-class** F1 (mismatch=1) is only 0.1165, despite perfect recall (1.0), due to very low precision (0.0618).
 
-**Interpretation:**
+> **Interpretation:**
 Although this baseline almost never misses a true mismatch (recall = 100%), it generates many false positives, so its precision—and hence F1—is extremely low. In a real deployment, this would lead to too many false alarms. Therefore, the current model is not “good” enough and motivates more sophisticated modeling or feature engineering.
 
 ### Model Coefficients (sorted by magnitude)
@@ -364,7 +364,7 @@ param_grid = {
  'clf__n_estimators': 100}
 ```
 
-Rationale: balancing classes and limiting tree depth helped avoid overfitting on the rare “mismatch” cases.
+> **Rationale:** balancing classes and limiting tree depth helped avoid overfitting on the rare “mismatch” cases.
 
 
 ### Final Model vs. Baseline
@@ -386,7 +386,7 @@ Rationale: balancing classes and limiting tree depth helped avoid overfitting on
 | **Actual 0**  |      15474 |        656 |
 | **Actual 1**  |         53 |         52 |
 
-**Interpretation:** The Random Forest sacrifices some recall to gain precision—flagging fewer disappointments overall but doing so more accurately. This yields a higher F₁‐score than the baseline logistic model, making it a more practical tool for identifying overpromised recipes without overwhelming users with alerts.
+> **Interpretation:** The Random Forest sacrifices some recall to gain precision—flagging fewer disappointments overall but doing so more accurately. This yields a higher F₁‐score than the baseline logistic model, making it a more practical tool for identifying overpromised recipes without overwhelming users with alerts.
 
 ---
 
