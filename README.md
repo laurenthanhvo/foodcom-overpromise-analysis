@@ -1,8 +1,8 @@
 # Recipe Overpromise Analytics: A Predictive Study of Online Recipes
 
-In today’s world of food blogging and recipe sharing, authors often use enthusiastic marketing-style language—words like “delicious,” “amazing,” and “you will **LOVE** this”—to entice home cooks to try their creations. However, some recipes hyped in their descriptions fail to live up to expectations, receiving low ratings despite the promise of “deliciousness.”
+In the digital age of food culture, recipe platforms and culinary blogs routinely leverage evocative, marketing‐oriented language—terms such as “delicious,” “amazing,” or even “you will LOVE this” to capture readers’ attention and drive engagement. Yet this promotional rhetoric can create a disconnect between expectation and experience, recipes that are aggressively lauded in their write-ups sometimes underperform in practice, garnering middling or even poor user ratings. Understanding and quantifying this description–reality gap is essential for platforms seeking to improve recommendation accuracy and ultimately deliver genuinely satisfying cooking experiences.
 
-In this project, we analyze a dataset of **83,782** recipes scraped from Food.com to answer the question:
+In this project, I will analyze a dataset of **83,782** recipes scraped from Food.com to answer the question:
 
 > **Can we detect, based solely on a recipe’s publish-time attributes (ingredients, steps, nutrition, and description text), when a recipe author has overpromised and home cooks end up rating it poorly?**
 
@@ -12,7 +12,7 @@ Understanding this “mismatch” between marketing language and actual user sat
 
 ## Introduction
 
-Our merged dataset contains **83,782** rows. For this prediction problem, we focus on the following columns:
+The merged dataset contains **83,782** rows. For this prediction problem, I will focus on the following columns:
 
 | Column Name           | Description                                                                         |
 | --------------------- | ----------------------------------------------------------------------------------- |
@@ -34,21 +34,21 @@ Our merged dataset contains **83,782** rows. For this prediction problem, we foc
 
 ### 1. Data Cleaning
 
-After merging our recipe metadata, nutrition facts, and ratings, we discovered:
+After merging the recipe metadata, nutrition facts, and ratings, I discovered:
 
 - **Missing `avg_rating`** (3.1% of rows):  
-  These recipes never received a rating, so we dropped them—our “mismatch” target depends on a true rating.  
+  These recipes never received a rating, so I dropped them; the “mismatch” target depends on a true rating.  
 
 - **Missing `description`** (0.08%):  
-  We filled these with the empty string so our `.str.contains("delicious")` check still works.  
+  I filled these with the empty string so the `.str.contains("delicious")` check still works.  
 
 - **Outliers in `minutes` & `calories`**:  
   A few recipes claimed hundreds of thousands of minutes or calories—almost certainly typos.  
-  We capped cook time at 1,440 min (24 h) and calories at 10,000 kcal.  
+  I capped cook time at 1,440 min (24 h) and calories at 10,000 kcal.  
 
 - **Type conversions**:  
-  Parsed our submission timestamps into `datetime64`, cast numeric fields to floats,  
-  and turned our binary flags (`desc_has_delicious`, `mismatch`) into integers.  
+  Parsed the submission timestamps into `datetime64`, cast numeric fields to floats,  
+  and turned the binary flags (`desc_has_delicious`, `mismatch`) into integers.  
 
 #### Cleaned DataFrame (first 5 rows)
 
@@ -103,7 +103,7 @@ After merging our recipe metadata, nutrition facts, and ratings, we discovered:
 
 ### NMAR vs. MAR
 
-We do **not** believe any column in our dataset is NMAR (“Not Missing At Random”).  The only missingness in our cleaned data is in the `avg_rating` column (3.11% of recipes never received a rating).  This is almost certainly because those recipes were unpopular or not viewed—an **observable** phenomenon tied to recipe visibility or share counts—rather than being missing due to an unobserved “true” rating.  If we could obtain page‐view or social‐share data for each recipe, we could explain away this missingness (making it MAR).
+I do **not** believe any column in the dataset is NMAR (“Not Missing At Random”).  The only missingness in the cleaned data is in the `avg_rating` column (3.11% of recipes never received a rating).  This is almost certainly because those recipes were unpopular or not viewed—an observable phenomenon tied to recipe visibility or share counts—rather than being missing due to an unobserved “true” rating.  If we could obtain page‐view or social‐share data for each recipe, we could explain away this missingness (making it MAR).
 
 ### Missingness Summary
 
@@ -112,7 +112,7 @@ We do **not** believe any column in our dataset is NMAR (“Not Missing At Rando
 
 ### Permutation Tests
 
-We performed two permutation tests (B = 5 000) on the test‐set to see whether recipes **with** missing ratings differ systematically on:
+I performed two permutation tests (B = 5000) on the test‐set to see whether recipes with missing ratings differ systematically on:
 
 1. **Number of Ingredients**  
 2. **“Contains the word ‘delicious’”** flag
@@ -122,7 +122,7 @@ Let
 - **Y** = distribution of the feature among recipes with _missing_ ratings  
 - **Δ** = mean(Y) – mean(X)
 
-We then compared the observed Δ to its null distribution under random label‐permutations.
+I then compared the observed Δ to its null distribution under random label‐permutations.
 
 ---
 
@@ -152,15 +152,15 @@ We then compared the observed Δ to its null distribution under random label‐p
 - **Observed Δ =** 0.001  
 - **Permutation p-value (two-sided) =** 0.9246  
 
-> **Interpretation:** There is no evidence that the “contains ‘delicious’” flag differs between rated vs. unrated recipes.  Missingness in `avg_rating` is not associated with our target‐related text feature.
+> **Interpretation:** There is no evidence that the “contains ‘delicious’” flag differs between rated vs. unrated recipes.  Missingness in `avg_rating` is not associated with the target‐related text feature.
 
 ---
 
 #### Conclusion
 
-- No column in our dataset is NMAR.  
+- No column in the dataset is NMAR.  
 - Missingness in `avg_rating` can be explained by recipe **popularity** (an observable factor), so it is MAR.  
-- Because the only non‐zero—but tiny—difference was in `n_ingredients`, we feel comfortable dropping unrated recipes without introducing substantive bias in our “mismatch” labels.
+- Because the only non‐zero—but tiny—difference was in `n_ingredients`, I was able to drop unrated recipes without introducing substantive bias in the “mismatch” labels.
 
 ---
 
@@ -178,12 +178,12 @@ Recipes whose descriptions contain “delicious” have a _different_ mean avera
 
 ### Test Statistic & Significance Level
 
-We use the difference in group means as our test statistic:
+I used the difference in group means as the test statistic:
 
 > **T** = mean( avg_rating | desc_has_delicious = 1 )  
 > &nbsp;&nbsp;– mean( avg_rating | desc_has_delicious = 0 )
 
-Because we make no strong parametric assumptions about the rating distributions, we estimate the null distribution via a two-sided permutation test (**B = 5000** shuffles of the `desc_has_delicious` labels). We choose a conventional significance level of **α = 0.05**.
+Because we make no strong parametric assumptions about the rating distributions, I estimated the null distribution via a two-sided permutation test (5000 shuffles of the `desc_has_delicious` labels). I chose a significance level of **α = 0.05**.
 
 ---
 
@@ -207,7 +207,7 @@ Since _p_ < α, we reject H₀ and conclude there is a statistically significant
 </iframe>
 
 <em>
-The gray bars show the permutation-test null distribution of Δ mean(avg_rating), and the vertical red dashed line marks our observed Δ = 0.023. Only ~0.28% of shuffled labelings produced a difference as extreme or more extreme, yielding p = 0.0028.
+The gray bars show the permutation-test null distribution of Δ mean(avg_rating), and the vertical red dashed line marks the observed Δ = 0.023. Only ~0.28% of shuffled labelings produced a difference as extreme or more extreme, yielding p = 0.0028.
 </em>
 
 ---
@@ -220,15 +220,15 @@ This is a **binary classification** problem: given only information known at pub
 ---
 
 ### Response Variable (_y_)  
-We define: mismatch = 1 if desc_has_delicious == 1 AND avg_rating < 4.0, mismatch = 0 otherwise
+I defined: mismatch = 1 if desc_has_delicious == 1 AND avg_rating < 4.0, mismatch = 0 otherwise
 
-We chose this target because our central question is  
+I chose this target because the central question is  
 > “Can we detect, at publish-time, which recipes hyped as ‘delicious’ home cooks end up rating poorly?”
 
 ---
 
 ### Features (_X_)  
-We only use fields available the moment the recipe goes live:
+I only used fields available the moment the recipe goes live:
 
 - **Quantitative**:  
   `n_ingredients`, `n_steps`, `minutes`,  
@@ -246,7 +246,7 @@ There are exactly two outcomes—“mismatch” versus “not mismatch”—so b
 ---
 
 ### Evaluation Metric  
-We use the **F₁-score** rather than plain accuracy because the positive class  
+I used the **F₁-score** rather than plain accuracy because the positive class  
 (`mismatch = 1`) is very rare (~0.65% of all recipes).  
 F₁ balances precision (avoiding false alarms) and recall (catching true mismatches).
 
@@ -254,7 +254,7 @@ F₁ balances precision (avoiding false alarms) and recall (catching true mismat
 
 ### Time-of-Prediction Justification  
 All features (`n_ingredients`, `minutes`, etc.) are known immediately upon publication.  
-We deliberately exclude any later data—no post-publication edits, user comments, or subsequent ratings—so our model truly simulates “real-time” predictions.
+I deliberately excluded any later data—no post-publication edits, user comments, or subsequent ratings—so the model truly simulates “real-time” predictions.
 
 ---
 
@@ -265,7 +265,7 @@ We deliberately exclude any later data—no post-publication edits, user comment
 | Training  | 64,938    | 0.65%            |
 | Test      | 16,235    | 0.65%            |
 
-We performed a stratified 80/20 split to preserve the roughly 1-in-150 rate of mismatches in both sets.
+I performed a stratified 80/20 split to preserve the roughly 1-in-150 rate of mismatches in both sets.
 
 ---
 
@@ -346,13 +346,13 @@ The large positive weight on `desc_has_delicious` confirms it is the strongest s
 - **`prot_carb_ratio`** = `protein_g` / (`carbs_g` + 1)  
   _Encodes macronutrient balance; unbalanced recipes (too low protein or too high carbs) may under-deliver._
 
-By grounding each feature in the data-generating process (ingredient complexity, effort distribution, and nutritional profile), we hypothesize these proxies help the model detect when a “delicious” description overpromises.
+By grounding each feature in the data-generating process (ingredient complexity, effort distribution, and nutritional profile), I hypothesize these proxies help the model detect when a “delicious” description overpromises.
 
 ---
 
 ### Modeling Algorithm & Hyperparameter Tuning
 
-We switched from a linear model to a **Random Forest Classifier** to capture nonlinear interactions among both raw and derived features.
+I switched from a linear model to a **Random Forest Classifier** to capture nonlinear interactions among both raw and derived features.
 
 **Pipeline**  
 ```python
@@ -405,17 +405,17 @@ param_grid = {
 **Group Y:** “complex” recipes (`n_ingredients > 5`)
 
 ### Evaluation Metric
-We assess fairness by comparing the **precision** for the positive class (`mismatch = 1`) in each group.
+I assessed fairness by comparing the **precision** for the positive class (`mismatch = 1`) in each group.
 
 ### Null & Alternative Hypotheses
 - **H₀:** precision₁(simple) ≈ precision₁(complex) (any difference is due to chance)  
 - **H₁:** precision₁(simple) ≠ precision₁(complex)
 
 ### Test Statistic & Significance Level
-We define our test statistic as  
+I defined the test statistic as  
 > **Δ precision** = precision(simple) − precision(complex)
 
-To estimate its null distribution, we perform a **two-sided permutation test** with **B = 5000** random shuffles of the `mask_simple` indicator. We use a conventional significance level of **α = 0.05**.
+To estimate its null distribution, I performed a **two-sided permutation test** with 5000 random shuffles of the `mask_simple` indicator. I used a significance level of **α = 0.05**.
 
 ---
 
@@ -439,8 +439,8 @@ Since _p_ > α, we **fail to reject H₀**. There is no statistically significan
 </iframe>
 
 <em>
-The histogram shows the permutation-test null distribution of Δ precision under random group assignments, and the vertical red dashed line marks our observed Δ = −0.0103. With p = 0.6826, the observed gap is consistent with chance.
+The histogram shows the permutation-test null distribution of Δ precision under random group assignments, and the vertical red dashed line marks the observed Δ = −0.0103. With p = 0.6826, the observed gap is consistent with chance.
 </em>
 
 ### Conclusion
-Our model’s ability to flag “over-promised” recipes does not differ meaningfully between simple and complex recipes, at least as measured by precision. This suggests that, along the axis of recipe complexity, our mismatch detector behaves fairly, without unduly favoring one group over the other.
+The model’s ability to flag “over-promised” recipes does not differ meaningfully between simple and complex recipes, at least as measured by precision. This suggests that, along the axis of recipe complexity, the mismatch detector behaves fairly, without unduly favoring one group over the other.
