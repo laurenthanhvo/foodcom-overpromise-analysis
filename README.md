@@ -128,11 +128,11 @@ We then compared the observed Δ to its null distribution under random label‐p
 
 #### 3.1 Δ mean(`n_ingredients`) under H₀
 <iframe
-  src="assets/missing_n_ingredients_null.html"
-  width="800"
-  height="450"
-  frameborder="0"
-></iframe>
+    src="/assets/permtest_1.html"
+    width="700"
+    height="450"
+    frameborder="0"
+  ></iframe>
 
 - **Observed Δ =** 0.254  
 - **Permutation p-value (two-sided) =** 0.0006  
@@ -143,11 +143,11 @@ We then compared the observed Δ to its null distribution under random label‐p
 
 #### 3.2 Δ mean(`desc_has_delicious`) under H₀
 <iframe
-  src="assets/missing_desc_has_delicious_null.html"
-  width="800"
-  height="450"
-  frameborder="0"
-></iframe>
+    src="/assets/permtest_2.html"
+    width="700"
+    height="450"
+    frameborder="0"
+  ></iframe>
 
 - **Observed Δ =** 0.001  
 - **Permutation p-value (two-sided) =** 0.9246  
