@@ -305,8 +305,7 @@ All quantitative features were standardized; the single binary feature was used 
 | **Macro avg**       | 0.5309   | 0.9506 |  0.5323  | 16235   |
 | **Weighted avg**    | 0.9939   | 0.9019 |  0.9427  | 16235   |
 
-```text
-Confusion Matrix:
+### Confusion Matrix:
 [[14537  1593]
  [    0   105]]
 
