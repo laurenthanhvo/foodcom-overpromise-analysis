@@ -362,6 +362,7 @@ from sklearn.ensemble import RandomForestClassifier
 pipeline = Pipeline([
   ("clf", RandomForestClassifier(random_state=42))
 ])
+```
 
 **Hyperparameter grid** (GridSearchCV, 5-fold CV, scoring="f1"):
 ```python
@@ -370,12 +371,14 @@ param_grid = {
   "clf__max_depth":    [None, 10, 20],
   "clf__class_weight": ["balanced"]
 }
+```
 
 **Best parameters** found via cross‐validation:
 ```python
 {'clf__class_weight': 'balanced',
  'clf__max_depth': 20,
  'clf__n_estimators': 100}
+```
 
 ---
 
@@ -394,8 +397,10 @@ param_grid = {
 ---
 
 ### Confusion Matrix (Final Model)
-[[15474   656]
- [   53    52]]
+|               | Predicted 0 | Predicted 1 |
+|---------------|-----------:|-----------:|
+| **Actual 0**  |      15474 |        656 |
+| **Actual 1**  |         53 |         52 |
 
 **Interpretation:** The Random Forest trades off some recall for a substantial precision gain, yielding an overall higher F₁-score. By combining publish-time and engineered features in a flexible tree-based model, we make measurable progress toward flagging mismatches without overwhelming users with false alarms.
 
