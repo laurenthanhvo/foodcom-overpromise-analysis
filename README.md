@@ -128,7 +128,7 @@ We then compared the observed Δ to its null distribution under random label‐p
 
 #### 3.1 Δ mean(`n_ingredients`) under H₀
 <iframe
-    src="/assets/permtest_1.html"
+    src="assets/permtest_1.html"
     width="700"
     height="450"
     frameborder="0"
@@ -143,7 +143,7 @@ We then compared the observed Δ to its null distribution under random label‐p
 
 #### 3.2 Δ mean(`desc_has_delicious`) under H₀
 <iframe
-    src="/assets/permtest_2.html"
+    src="assets/permtest_2.html"
     width="700"
     height="450"
     frameborder="0"
