@@ -78,4 +78,127 @@ layout: default
   </table>
 </section>
 
+<section id="data-cleaning-eda">
+  <h2>Data Cleaning &amp; Exploratory Data Analysis</h2>
+
+  <!-- 1. Data Cleaning -->
+  <h3>1. Data Cleaning</h3>
+  <p>
+    After merging our recipe metadata, nutrition facts, and ratings, we discovered:
+  </p>
+  <ul>
+    <li><strong>Missing <code>avg_rating</code></strong> (3.1% of rows):  
+      These recipes never received a rating, so we dropped them—our “mismatch” target depends on a true rating.</li>
+    <li><strong>Missing <code>description</code></strong> (0.08%):  
+      We filled these with the empty string so our <code>.str.contains("delicious")</code> check still works.</li>
+    <li><strong>Outliers in <code>minutes</code> &amp; <code>calories</code></strong>:  
+      A few recipes claimed hundreds of thousands of minutes or calories—almost certainly typos.  
+      We capped cook time at 1,440 min (24 h) and calories at 10,000 kcal.</li>
+    <li><strong>Type conversions</strong>:  
+      Parsed our submission timestamps into <code>datetime64</code>, cast numeric fields to floats,  
+      and turned our binary flags (<code>desc_has_delicious</code>, <code>mismatch</code>) into integers.</li>
+  </ul>
+
+  <!-- head of cleaned DataFrame -->
+  <h4>Cleaned DataFrame (first 5 rows)</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>id</th><th>name</th><th>submitted</th><th>n_ingredients</th>
+        <th>avg_rating</th><th>calories</th><th>desc_has_delicious</th><th>mismatch</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>333281</td><td>brownies in the world best ever</td>
+        <td>2008-10-15</td><td>9</td><td>4.0</td><td>138.4</td>
+        <td>0</td><td>0</td>
+      </tr>
+      <tr>
+        <td>453467</td><td>1 in canada chocolate chip cookies</td>
+        <td>2011-04-23</td><td>11</td><td>5.0</td><td>595.1</td>
+        <td>0</td><td>0</td>
+      </tr>
+      <tr>
+        <td>306168</td><td>412 broccoli casserole</td>
+        <td>2008-05-07</td><td>9</td><td>5.0</td><td>194.8</td>
+        <td>0</td><td>0</td>
+      </tr>
+      <tr>
+        <td>286009</td><td>millionaire pound cake</td>
+        <td>2008-02-11</td><td>7</td><td>5.0</td><td>878.3</td>
+        <td>0</td><td>0</td>
+      </tr>
+      <tr>
+        <td>475785</td><td>2000 meatloaf</td>
+        <td>2012-03-29</td><td>13</td><td>5.0</td><td>267.0</td>
+        <td>0</td><td>0</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 2. Univariate Plot -->
+  <h3>2. Distribution of Number of Ingredients</h3>
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <div id="hist-ingredients" style="width:100%;max-width:700px;height:450px;"></div>
+  <script>
+    // paste the JSON you get from fig_hist.to_json() here:
+    const histJSON = /* {
+      "data": [ /* … your data array … */ ],
+      "layout": {
+        "title": "Distribution of Number of Ingredients per Recipe",
+        "xaxis": {"title":"Number of Ingredients"},
+        "yaxis": {"title":"Count"},
+        "margin": {"t":50,"l":50,"r":20,"b":50}
+      }
+    } */;
+    Plotly.react('hist-ingredients', histJSON.data, histJSON.layout);
+  </script>
+  <p>
+    <em>Nearly three‐quarters of recipes use between 5 and 15 ingredients (the box shows the 25th–75th percentile), 
+    but there’s a long tail of complex recipes up to 30+ ingredients.</em>
+  </p>
+
+  <!-- 3. Bivariate Plot -->
+  <h3>3. Average Rating vs. Number of Ingredients</h3>
+  <div id="scatter-rating-ingredients" style="width:100%;max-width:700px;height:450px;"></div>
+  <script>
+    // paste the JSON you get from fig_scatter.to_json() here:
+    const scatterJSON = /* {
+      "data": [ /* … your data array … */ ],
+      "layout": {
+        "title": "Average Rating vs. Number of Ingredients",
+        "xaxis": {"title":"# Ingredients"},
+        "yaxis": {"title":"Average Rating"},
+        "margin": {"t":50,"l":50,"r":20,"b":50}
+      }
+    } */;
+    Plotly.react('scatter-rating-ingredients', scatterJSON.data, scatterJSON.layout);
+  </script>
+  <p>
+    <em>The fitted trendline is essentially flat, indicating that recipe length (ingredient count) 
+    by itself does not strongly predict whether home cooks rate the recipe higher or lower.</em>
+  </p>
+
+  <!-- 4. Grouped Pivot Table -->
+  <h3>4. Quick vs. Long Recipes; Mean Rating</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Cook Time</th><th>Mean Rating</th><th># Recipes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>≤ 30 minutes</td><td>4.62</td><td>21,845</td></tr>
+      <tr><td>> 30 minutes</td><td>4.64</td><td>61,937</td></tr>
+    </tbody>
+  </table>
+  <p>
+    <em>Longer recipes (>30 min) have a slightly higher average rating (4.64 vs. 4.62), 
+    but the difference is very small—cook time alone is not a reliable overpromise signal.</em>
+  </p>
+</section>
+
+
 
