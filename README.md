@@ -384,7 +384,7 @@ param_grid = {
 | **Actual 0**  |      15474 |        656 |
 | **Actual 1**  |         53 |         52 |
 
-**Interpretation:** The Random Forest trades off some recall for a substantial precision gain, yielding an overall higher F₁-score. By combining publish-time and engineered features in a flexible tree-based model, we make measurable progress toward flagging mismatches without overwhelming users with false alarms.
+**Interpretation:** The Random Forest trades off some recall for a substantial precision gain, yielding an overall higher F₁-score. By combining publish-time and the features in a tree-based model, I am able to make measurable progress toward flagging mismatches without overwhelming users with false alarms.
 
 ---
 
