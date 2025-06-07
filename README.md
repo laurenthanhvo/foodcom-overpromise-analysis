@@ -323,20 +323,20 @@ The large positive weight on desc_has_delicious confirms it is the strongest sin
 ### New Feature Engineering
 
 - **`cal_per_ing`** = `calories` / (`n_ingredients` + 1)  
-  _Captures average caloric density per ingredient; very rich recipes may disappoint if over-hyped._
+  _By dividing total calories by ingredient count, this feature approximates how “rich” each component is. Very high density recipes (e.g. heavy sauces) can raise expectations in the description that the recipe often fails to meet._
 
 - **`time_per_step`** = `minutes` / (`n_steps` + 1)  
-  _Measures average time per instruction step; extreme pacing can affect user satisfaction._
+  _This captures the average effort per instruction. Recipes that cram many steps into little time can frustrate cooks, whereas overly long steps (e.g. long marinades) may disappoint if the promised “simple” process is too slow._
 
 - **`prot_carb_ratio`** = `protein_g` / (`carbs_g` + 1)  
-  _Encodes macronutrient balance; unbalanced recipes (too low protein or too high carbs) may under-deliver._
+  _A balanced macronutrient profile often yields more satisfying dishes; extremely skewed ratios (very high carbs or very low protein) can lead to bland or unfulfilling outcomes despite “yummy” language._
 
-By grounding each feature in the data-generating process (ingredient complexity, effort distribution, and nutritional profile), I hypothesize these proxies help the model detect when a “delicious” description overpromises.
+All three features encode aspects of the recipe’s underlying process or nutritional promise, rather than just the hype word (“delicious”) itself. They help the model learn when high-sounding descriptions are backed by substance versus when they overpromise.
 
 
 ### Modeling Algorithm & Hyperparameter Tuning
 
-I switched from a linear model to a **Random Forest Classifier** to capture nonlinear interactions among both raw and derived features.
+I moved from Logistic Regression (a linear boundary) to a Random Forest Classifier to capture nonlinear interactions—e.g. a recipe with both high cal_per_ing and low time_per_step might be especially likely to disappoint.
 
 **Pipeline**  
 ```python
@@ -364,6 +364,8 @@ param_grid = {
  'clf__n_estimators': 100}
 ```
 
+Rationale: balancing classes and limiting tree depth helped avoid overfitting on the rare “mismatch” cases.
+
 
 ### Final Model vs. Baseline
 | Model                      | Precision | Recall | F₁-score |
@@ -384,7 +386,7 @@ param_grid = {
 | **Actual 0**  |      15474 |        656 |
 | **Actual 1**  |         53 |         52 |
 
-**Interpretation:** The Random Forest trades off some recall for a substantial precision gain, yielding an overall higher F₁-score. By combining publish-time and the features in a tree-based model, I am able to make measurable progress toward flagging mismatches without overwhelming users with false alarms.
+**Interpretation:** The Random Forest sacrifices some recall to gain precision—flagging fewer disappointments overall but doing so more accurately. This yields a higher F₁‐score than the baseline logistic model, making it a more practical tool for identifying overpromised recipes without overwhelming users with alerts.
 
 ---
 
