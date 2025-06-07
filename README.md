@@ -181,7 +181,7 @@ Because we make no strong parametric assumptions about the rating distributions,
 
 ### Results
 
-- **Observed test statistic** (Tₒbₛ):  
+- **Observed test statistic**:  
   mean(ratings | “delicious”) – mean(ratings | not “delicious”) = **0.023**
 - **Permutation p-value (two-sided):**  
   **p = 0.0028**
@@ -289,9 +289,10 @@ All quantitative features were standardized; the single binary feature was used 
 | **Weighted avg**    | 0.9939   | 0.9019 |  0.9427  | 16235   |
 
 ### Confusion Matrix:
-[[14537  1593]
-
- [    0   105]]
+|               | Predicted 0 | Predicted 1 |
+|---------------|-----------:|-----------:|
+| **Actual 0**  |      14537 |       1593 |
+| **Actual 1**  |          0 |        105 |
 
 - **Accuracy** is high (≈90.2%) because “no-mismatch” is the dominant class.
 
@@ -378,9 +379,10 @@ param_grid = {
 
 
 ### Confusion Matrix (Final Model)
-[[15474   656]
-
- [   53    52]]
+|               | Predicted 0 | Predicted 1 |
+|---------------|-----------:|-----------:|
+| **Actual 0**  |      15474 |        656 |
+| **Actual 1**  |         53 |         52 |
 
 **Interpretation:** The Random Forest trades off some recall for a substantial precision gain, yielding an overall higher F₁-score. By combining publish-time and engineered features in a flexible tree-based model, we make measurable progress toward flagging mismatches without overwhelming users with false alarms.
 
