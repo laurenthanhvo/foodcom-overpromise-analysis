@@ -1,6 +1,6 @@
 # Recipe Overpromise Analytics: A Predictive Study of Online Recipes
 
-In the digital age of food culture, recipe platforms and culinary blogs routinely leverage evocative, marketing‐oriented language—terms such as “delicious,” “amazing,” or even “you will LOVE this” to capture readers’ attention and drive engagement. Yet this promotional rhetoric can create a disconnect between expectation and experience, recipes that are aggressively lauded in their write-ups sometimes underperform in practice, garnering middling or even poor user ratings. Understanding and quantifying this description–reality gap is essential for platforms seeking to improve recommendation accuracy and ultimately deliver genuinely satisfying cooking experiences.
+In the digital age of food culture, recipe platforms and culinary blogs routinely leverage evocative, marketing‐oriented language, terms such as “delicious,” “amazing,” or even “you will LOVE this” to capture readers’ attention and drive engagement. Yet this promotional rhetoric can create a disconnect between expectation and experience, recipes that are aggressively lauded in their write-ups sometimes underperform in practice, garnering middling or even poor user ratings. Understanding and quantifying this description–reality gap is essential for platforms seeking to improve recommendation accuracy and ultimately deliver genuinely satisfying cooking experiences.
 
 In this project, I will analyze a dataset of **83,782** recipes scraped from Food.com to answer the question:
 
@@ -329,7 +329,7 @@ Although this baseline almost never misses a true mismatch (recall = 100%), it g
 | **num_tags**            |      −0.0317 |
 | **calories**            |      −0.2702 |
 
-The large positive weight on `desc_has_delicious` confirms it is the strongest single predictor, but the overall poor precision shows we need richer features or a more flexible model to reliably detect mismatches.
+The large positive weight on desc_has_delicious confirms it is the strongest single predictor, but the overall poor precision shows we need richer features or a more flexible model to reliably detect mismatches.
 
 ---
 
@@ -397,10 +397,8 @@ param_grid = {
 ---
 
 ### Confusion Matrix (Final Model)
-|               | Predicted 0 | Predicted 1 |
-|---------------|-----------:|-----------:|
-| **Actual 0**  |      15474 |        656 |
-| **Actual 1**  |         53 |         52 |
+[[15474   656]
+ [   53    52]]
 
 **Interpretation:** The Random Forest trades off some recall for a substantial precision gain, yielding an overall higher F₁-score. By combining publish-time and engineered features in a flexible tree-based model, we make measurable progress toward flagging mismatches without overwhelming users with false alarms.
 
@@ -444,8 +442,8 @@ Since _p_ > α, we **fail to reject H₀**. There is no statistically significan
 </iframe>
 
 <em>
-The histogram shows the permutation-test null distribution of Δ precision under random group assignments, and the vertical red dashed line marks the observed Δ = −0.0103. With p = 0.6826, the observed gap is consistent with chance.
+The histogram demonstrates the permutation-test null distribution of Δ precision under random group assignments, and the vertical red dashed line marks the observed Δ = −0.0103. With p = 0.6826, the observed gap is consistent with chance.
 </em>
 
 ### Conclusion
-The model’s ability to flag “over-promised” recipes does not differ meaningfully between simple and complex recipes, at least as measured by precision. This suggests that, along the axis of recipe complexity, the mismatch detector behaves fairly, without unduly favoring one group over the other.
+The model’s ability to flag “over-promised” recipes does not differ meaningfully between simple and complex recipes, at least as measured by precision. This suggests that, along the axis of recipe complexity, the mismatch detector behaves fairly, without disproportionately favoring one group over the other.
