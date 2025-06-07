@@ -72,7 +72,6 @@ After merging the recipe metadata, nutrition facts, and ratings, I discovered:
 
 > *Nearly three‐quarters of recipes use between 5 and 15 ingredients (the box shows the 25th–75th percentile), but there’s a long tail of complex recipes up to 30+ ingredients.*
 
----
 
 ### 3. Average Rating vs. Number of Ingredients
 
@@ -85,7 +84,6 @@ After merging the recipe metadata, nutrition facts, and ratings, I discovered:
 
 > *The fitted trendline is essentially flat, indicating that recipe length (ingredient count) by itself does not strongly predict whether home cooks rate the recipe higher or lower.*
 
----
 
 ### 4. Cook Time Groups – Mean Rating
 
@@ -123,9 +121,8 @@ Let
 
 I then compared the observed Δ to its null distribution under random label‐permutations.
 
----
 
-#### 3.1 Δ mean(`n_ingredients`) under H₀
+#### Δ mean(`n_ingredients`) under H₀
 <iframe
   src="assets/permtest_1.html"
   width="800"
@@ -138,9 +135,8 @@ I then compared the observed Δ to its null distribution under random label‐pe
 
 > **Interpretation:** Although the difference in average ingredient count between “missing” vs. “not missing” recipes is very small (≈0.25 ingredients), it is statistically significant.  Recipes that never received a rating tend to have marginally more ingredients—but the effect size is negligible for practical predictive use.
 
----
 
-#### 3.2 Δ mean(`desc_has_delicious`) under H₀
+#### Δ mean(`desc_has_delicious`) under H₀
 <iframe
   src="assets/permtest_2.html"
   width="800"
@@ -153,7 +149,6 @@ I then compared the observed Δ to its null distribution under random label‐pe
 
 > **Interpretation:** There is no evidence that the “contains ‘delicious’” flag differs between rated vs. unrated recipes.  Missingness in `avg_rating` is not associated with the target‐related text feature.
 
----
 
 #### Conclusion
 
@@ -173,7 +168,6 @@ The mean average rating for recipes whose descriptions _contain_ “delicious”
 **Alternative hypothesis (H₁):**  
 Recipes whose descriptions contain “delicious” have a _different_ mean average rating than those that do not.
 
----
 
 ### Test Statistic & Significance Level
 
@@ -184,7 +178,6 @@ I used the difference in group means as the test statistic:
 
 Because we make no strong parametric assumptions about the rating distributions, I estimated the null distribution via a two-sided permutation test (5000 shuffles of the `desc_has_delicious` labels). I chose a significance level of **α = 0.05**.
 
----
 
 ### Results
 
@@ -195,7 +188,6 @@ Because we make no strong parametric assumptions about the rating distributions,
 
 Since _p_ < α, we reject H₀ and conclude there is a statistically significant difference in mean ratings between the two groups. However, the effect size is very small (~0.02 stars), so while “delicious” in the description correlates with a slightly higher rating, it is not by itself a practically strong over-promise signal.
 
----
 
 ### Null Distribution of Δ mean(avg_rating)
 
@@ -216,7 +208,6 @@ The gray bars show the permutation-test null distribution of Δ mean(avg_rating)
 ### Prediction Type  
 This is a **binary classification** problem: given only information known at publication, we predict whether a recipe “over-promises” in its description and then “under-delivers” on user ratings.
 
----
 
 ### Response Variable (_y_)  
 I defined: mismatch = 1 if desc_has_delicious == 1 AND avg_rating < 4.0, mismatch = 0 otherwise
@@ -224,7 +215,6 @@ I defined: mismatch = 1 if desc_has_delicious == 1 AND avg_rating < 4.0, mismatc
 I chose this target because the central question is  
 > “Can we detect, at publish-time, which recipes hyped as ‘delicious’ home cooks end up rating poorly?”
 
----
 
 ### Features (_X_)  
 I only used fields available the moment the recipe goes live:
@@ -235,27 +225,23 @@ I only used fields available the moment the recipe goes live:
 - **Binary**:  
   `desc_has_delicious`
 
-Any rows missing these features are dropped so the model never “peeks” at post-publication data (e.g. actual user reviews).
+Any rows missing these features are dropped so the model never “peeks” at post-publication data (for instance actual user reviews).
 
----
 
 ### Why Binary Classification?  
 There are exactly two outcomes—“mismatch” versus “not mismatch”—so binary classification is the natural choice.
 
----
 
 ### Evaluation Metric  
 I used the **F₁-score** rather than plain accuracy because the positive class  
 (`mismatch = 1`) is very rare (~0.65% of all recipes).  
 F₁ balances precision (avoiding false alarms) and recall (catching true mismatches).
 
----
 
 ### Time-of-Prediction Justification  
 All features (`n_ingredients`, `minutes`, etc.) are known immediately upon publication.  
 I deliberately excluded any later data—no post-publication edits, user comments, or subsequent ratings—so the model truly simulates “real-time” predictions.
 
----
 
 ### Train/Test Split & Class Balance
 
@@ -276,7 +262,6 @@ Baseline binary classifier using **Logistic Regression**, implemented as a singl
 1. **Scaler**: `StandardScaler()` to put all features on the same scale  
 2. **Classifier**: `LogisticRegression(random_state=42, max_iter=2000, class_weight="balanced")`
 
----
 
 ### Features Used (8 total)
 
@@ -292,7 +277,6 @@ Baseline binary classifier using **Logistic Regression**, implemented as a singl
 
 All quantitative features were standardized; the single binary feature was used as-is (no additional encoding).
 
----
 
 ### Performance on Test Set
 
@@ -347,7 +331,6 @@ The large positive weight on desc_has_delicious confirms it is the strongest sin
 
 By grounding each feature in the data-generating process (ingredient complexity, effort distribution, and nutritional profile), I hypothesize these proxies help the model detect when a “delicious” description overpromises.
 
----
 
 ### Modeling Algorithm & Hyperparameter Tuning
 
@@ -379,7 +362,6 @@ param_grid = {
  'clf__n_estimators': 100}
 ```
 
----
 
 ### Final Model vs. Baseline
 | Model                      | Precision | Recall | F₁-score |
@@ -393,13 +375,14 @@ param_grid = {
 
 - **F₁-score ↑** from 0.1165 → 0.1279
 
----
 
 ### Confusion Matrix (Final Model)
 [[15474   656]
  [   53    52]]
 
 **Interpretation:** The Random Forest trades off some recall for a substantial precision gain, yielding an overall higher F₁-score. By combining publish-time and engineered features in a flexible tree-based model, we make measurable progress toward flagging mismatches without overwhelming users with false alarms.
+
+---
 
 ## Fairness Analysis
 
@@ -419,7 +402,6 @@ I defined the test statistic as
 
 To estimate its null distribution, I performed a **two-sided permutation test** with 5000 random shuffles of the `mask_simple` indicator. I used a significance level of **α = 0.05**.
 
----
 
 ### Results
 
@@ -430,7 +412,6 @@ To estimate its null distribution, I performed a **two-sided permutation test** 
 
 Since _p_ > α, we **fail to reject H₀**. There is no statistically significant difference in mismatch detection precision between simple and complex recipes.
 
----
 
 ### Null Distribution of Δ Precision
 
