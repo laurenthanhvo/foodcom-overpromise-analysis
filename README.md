@@ -443,3 +443,5 @@ Since _p_ > α, we **fail to reject H₀**. There is no statistically significan
 The histogram shows the permutation-test null distribution of Δ precision under random group assignments, and the vertical red dashed line marks our observed Δ = −0.0103. With p = 0.6826, the observed gap is consistent with chance.
 </em>
 
+###Conclusion
+Our model’s ability to flag “over-promised” recipes does not differ meaningfully between simple and complex recipes, at least as measured by precision. This suggests that, along the axis of recipe complexity, our mismatch detector behaves fairly, without unduly favoring one group over the other.
