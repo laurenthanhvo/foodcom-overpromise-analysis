@@ -266,3 +266,68 @@ We deliberately exclude any later data—no post-publication edits, user comment
 | Test      | 16,235    | 0.65%            |
 
 We performed a stratified 80/20 split to preserve the roughly 1-in-150 rate of mismatches in both sets.
+
+---
+
+## Baseline Model
+
+### Model Type  
+Baseline binary classifier using **Logistic Regression**, implemented as a single `sklearn.Pipeline`:
+
+1. **Scaler**: `StandardScaler()` to put all features on the same scale  
+2. **Classifier**: `LogisticRegression(random_state=42, max_iter=2000, class_weight="balanced")`
+
+---
+
+### Features Used (8 total)
+
+- **Quantitative (7)**  
+  `n_ingredients` (number of ingredients)  
+  `n_steps` (number of recipe steps)  
+  `minutes` (total cook + prep time)  
+  `calories`, `protein_g`, `carbs_g` (nutritional values)  
+  `num_tags` (number of tags)  
+
+- **Nominal/Binary (1)**  
+  `desc_has_delicious` (1 if description contains “delicious”, else 0)  
+
+All quantitative features were standardized; the single binary feature was used as-is (no additional encoding).
+
+---
+
+### Performance on Test Set
+
+| Class             | Precision | Recall | F1-score | Support |
+|-------------------|:---------:|:------:|:--------:|:-------:|
+| **0 (no mismatch)** | 1.0000   | 0.9012 |  0.9481  | 16130   |
+| **1 (mismatch)**    | 0.0618   | 1.0000 |  0.1165  |   105   |
+| **Accuracy**        |          |        |  0.9019  | 16235   |
+| **Macro avg**       | 0.5309   | 0.9506 |  0.5323  | 16235   |
+| **Weighted avg**    | 0.9939   | 0.9019 |  0.9427  | 16235   |
+
+```text
+Confusion Matrix:
+[[14537  1593]
+ [    0   105]]
+
+- **Accuracy** is high (≈90.2%) because “no-mismatch” is the dominant class.
+
+- **Positive-class** F1 (mismatch=1) is only 0.1165, despite perfect recall (1.0), due to very low precision (0.0618).
+
+**Interpretation:**
+Although this baseline almost never misses a true mismatch (recall = 100%), it generates many false positives, so its precision—and hence F1—is extremely low. In a real deployment, this would lead to too many false alarms. Therefore, the current model is not “good” enough and motivates more sophisticated modeling or feature engineering.
+
+### Model Coefficients (sorted by magnitude)
+
+| Feature                   | Coefficient |
+|---------------------------|------------:|
+| **`desc_has_delicious`**  |       4.9430 |
+| **`carbs_g`**             |       0.2487 |
+| **`protein_g`**           |       0.1002 |
+| **`minutes`**             |       0.0523 |
+| **`n_steps`**             |       0.0038 |
+| **`n_ingredients`**       |       0.0004 |
+| **`num_tags`**            |      −0.0317 |
+| **`calories`**            |      −0.2702 |
+
+The large positive weight on `desc_has_delicious` confirms it is the strongest single predictor, but the overall poor precision shows we need richer features or a more flexible model to reliably detect mismatches.
