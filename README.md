@@ -98,3 +98,67 @@ After merging our recipe metadata, nutrition facts, and ratings, we discovered:
 > *Longer recipes (>30 min) have a slightly higher average rating (4.64 vs. 4.62), but the difference is very small—cook time alone is not a reliable overpromise signal.*
 
 ---
+
+## Assessment of Missingness
+
+### NMAR vs. MAR
+
+We do **not** believe any column in our dataset is NMAR (“Not Missing At Random”).  The only missingness in our cleaned data is in the `avg_rating` column (3.11% of recipes never received a rating).  This is almost certainly because those recipes were unpopular or not viewed—an **observable** phenomenon tied to recipe visibility or share counts—rather than being missing due to an unobserved “true” rating.  If we could obtain page‐view or social‐share data for each recipe, we could explain away this missingness (making it MAR).
+
+### Missingness Summary
+
+- **Missing `avg_rating`**: 2,609 recipes (3.11%)  
+- **Observed `avg_rating`**: 81,173 recipes  
+
+### Permutation Tests
+
+We performed two permutation tests (B = 5 000) on the test‐set to see whether recipes **with** missing ratings differ systematically on:
+
+1. **Number of Ingredients**  
+2. **“Contains the word ‘delicious’”** flag
+
+Let  
+- **X** = distribution of the feature among recipes with _observed_ ratings  
+- **Y** = distribution of the feature among recipes with _missing_ ratings  
+- **Δ** = mean(Y) – mean(X)
+
+We then compared the observed Δ to its null distribution under random label‐permutations.
+
+---
+
+#### 3.1 Δ mean(`n_ingredients`) under H₀
+<iframe
+  src="assets/missing_n_ingredients_null.html"
+  width="800"
+  height="450"
+  frameborder="0"
+></iframe>
+
+- **Observed Δ =** 0.254  
+- **Permutation p-value (two-sided) =** 0.0006  
+
+> **Interpretation:** Although the difference in average ingredient count between “missing” vs. “not missing” recipes is very small (≈0.25 ingredients), it is statistically significant.  Recipes that never received a rating tend to have marginally more ingredients—but the effect size is negligible for practical predictive use.
+
+---
+
+#### 3.2 Δ mean(`desc_has_delicious`) under H₀
+<iframe
+  src="assets/missing_desc_has_delicious_null.html"
+  width="800"
+  height="450"
+  frameborder="0"
+></iframe>
+
+- **Observed Δ =** 0.001  
+- **Permutation p-value (two-sided) =** 0.9246  
+
+> **Interpretation:** There is no evidence that the “contains ‘delicious’” flag differs between rated vs. unrated recipes.  Missingness in `avg_rating` is not associated with our target‐related text feature.
+
+---
+
+#### Conclusion
+
+- No column in our dataset is NMAR.  
+- Missingness in `avg_rating` can be explained by recipe **popularity** (an observable factor), so it is MAR.  
+- Because the only non‐zero—but tiny—difference was in `n_ingredients`, we feel comfortable dropping unrated recipes without introducing substantive bias in our “mismatch” labels.
+
