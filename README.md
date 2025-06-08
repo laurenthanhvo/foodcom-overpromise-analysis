@@ -240,7 +240,7 @@ F₁ balances precision (avoiding false alarms) and recall (catching true mismat
 
 ### Time-of-Prediction Justification  
 All features (`n_ingredients`, `minutes`, etc.) are known immediately upon publication.  
-I deliberately excluded any later data—no post-publication edits, user comments, or subsequent ratings—so the model truly simulates “real-time” predictions.
+I excluded any later data—no post-publication edits, user comments, or subsequent ratings—so the model truly simulates “real-time” predictions.
 
 
 ### Train/Test Split & Class Balance
@@ -295,7 +295,7 @@ All quantitative features were standardized; the single binary feature was used 
 | **Actual 0**  |      14537 |       1593 |
 | **Actual 1**  |          0 |        105 |
 
-- **Accuracy** is high (≈90.2%) because “no-mismatch” is the dominant class.
+- **Accuracy** is high (≈ 90.2%) because “no-mismatch” is the dominant class.
 
 - **Positive-class** F1 (mismatch=1) is only 0.1165, despite perfect recall (1.0), due to very low precision (0.0618).
 
@@ -415,8 +415,8 @@ To estimate its null distribution, I performed a **two-sided permutation test** 
 
 - **Observed precision (simple):** 0.0638  
 - **Observed precision (complex):** 0.0741  
-- **Observed Δ precision:** 0.0638 − 0.0741 = **−0.0103**  
-- **Permutation p-value (two-sided):** **0.6826**
+- **Observed Δ precision:** 0.0638 − 0.0741 = −0.0103
+- **Permutation p-value (two-sided):** 0.6826
 
 Since _p_ > α, we **fail to reject H₀**. There is no statistically significant difference in mismatch detection precision between simple and complex recipes.
 
