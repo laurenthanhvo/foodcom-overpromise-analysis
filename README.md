@@ -6,7 +6,7 @@ In this project, I will analyze a dataset of **83,782** recipes scraped from Foo
 
 > **Can we detect, based solely on a recipe’s publish-time attributes (ingredients, steps, nutrition, and description text), when a recipe author has overpromised and home cooks end up rating it poorly?**
 
-Understanding this “mismatch” between marketing language and actual user satisfaction can help recipe platforms flag recipes likely to disappoint, improve recommendation engines, and guide authors toward more honest, data-driven descriptions.
+Understanding this “mismatch” between marketing language and actual user satisfaction can help recipe platforms flag recipes likely to disappoint, improve recommendation engines, and guide authors toward more transparent descriptions.
 
 ---
 
@@ -100,7 +100,7 @@ After merging the recipe metadata, nutrition facts, and ratings, I discovered:
 
 ### NMAR vs. MAR
 
-I do **not** believe any column in the dataset is NMAR (“Not Missing At Random”).  The only missingness in the cleaned data is in the `avg_rating` column (3.11% of recipes never received a rating).  This is almost certainly because those recipes were unpopular or not viewed—an observable phenomenon tied to recipe visibility or share counts—rather than being missing due to an unobserved “true” rating.  If we could obtain page‐view or social‐share data for each recipe, we could explain away this missingness (making it MAR).
+I do **not** believe any column in the dataset is NMAR (Not Missing At Random).  The only missingness in the cleaned data is in the `avg_rating` column (3.11% of recipes never received a rating).  This is almost certainly because those recipes were unpopular or not viewed, an observable phenomenon tied to recipe visibility or share counts—rather than being missing due to an unobserved “true” rating.  If we could obtain page‐view or social‐share data for each recipe, we could explain away this missingness (making it MAR).
 
 ### Missingness Summary
 
@@ -133,7 +133,7 @@ I then compared the observed Δ to its null distribution under random label‐pe
 - **Observed Δ =** 0.254  
 - **Permutation p-value (two-sided) =** 0.0006  
 
-> **Interpretation:** Although the difference in average ingredient count between “missing” vs. “not missing” recipes is very small (≈0.25 ingredients), it is statistically significant.  Recipes that never received a rating tend to have marginally more ingredients—but the effect size is negligible for practical predictive use.
+> **Interpretation:** Although the difference in average ingredient count between “missing” vs. “not missing” recipes is very small (≈0.25 ingredients), it is statistically significant.  Recipes that never received a rating tend to have marginally more ingredients, but the effect size is negligible for practical predictive use.
 
 
 #### Δ mean(`desc_has_delicious`) under H₀
@@ -289,6 +289,7 @@ All quantitative features were standardized; the single binary feature was used 
 | **Weighted avg**    | 0.9939   | 0.9019 |  0.9427  | 16235   |
 
 ### Confusion Matrix:
+
 |               | Predicted 0 | Predicted 1 |
 |---------------|-----------:|-----------:|
 | **Actual 0**  |      14537 |       1593 |
@@ -368,6 +369,7 @@ param_grid = {
 
 
 ### Final Model vs. Baseline
+
 | Model                      | Precision | Recall | F₁-score |
 | -------------------------- | --------: | -----: | -------: |
 | Logistic Regression (base) |    0.0618 |  1.000 |   0.1165 |
@@ -381,6 +383,7 @@ param_grid = {
 
 
 ### Confusion Matrix (Final Model)
+
 |               | Predicted 0 | Predicted 1 |
 |---------------|-----------:|-----------:|
 | **Actual 0**  |      15474 |        656 |
